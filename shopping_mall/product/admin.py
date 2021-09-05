@@ -18,6 +18,15 @@ class ProductAdmin(admin.ModelAdmin):
             return format_html(f'<span style="color:red">{stock} 개</span>')
         return f'{stock} 개'
     
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {'title': '상품 목록'}
+        return super().changelist_view(request, extra_context)
+    
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        product = Product.objects.get(pk=object_id)
+        extra_context = {'title': f'{product.name} 수정하기'}
+        return super().changeform_view(request, object_id, form_url, extra_context)
+    
     price_format.short_description = '가격'
     styled_stock.short_description = '재고'
 admin.site.register(Product, ProductAdmin)

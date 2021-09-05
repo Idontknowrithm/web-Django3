@@ -27,6 +27,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+BATON = {
+    'SITE_HEADER': 'Django backoffice',
+    'SITE_TITLE': 'Django backoffice',
+    'INDEX_TITLE': '관리자 페이지', 
+    'SUPPORT_HREF': 'https://github.com/idontknowrithm',
+    # 'SUPPORT_HREF': 'mailto:sustkadl12@gmail.com',
+    'COPYRIGHT': 'copyright © 2020 Idontknowrithm',
+    'POWERED_BY': '<a href="https://github.com/idontknowrithm">Idontknowrithm</a>',
+    'MENU_TITLE': 'BACKOFFICE'
+}
 
 # Application definition
 
@@ -40,9 +50,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'rest_framework',
-    'user',
-    'product',
-    'order',
+    'user.apps.UserConfig',
+    'product.apps.ProductConfig',
+    'order.apps.OrderConfig',
     'baton.autodiscover',
 ]
 
@@ -110,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'Asia/Seoul'
 
