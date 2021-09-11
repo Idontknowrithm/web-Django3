@@ -33,6 +33,7 @@ refund.short_description = '환불'
 class OrderAdmin(admin.ModelAdmin):
     list_filter = ('status', )
     list_display = ('user', 'product', 'styled_status')
+    change_list_template = 'admin/order_change_list.html'
     
     actions = [
         refund
