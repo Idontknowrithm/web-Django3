@@ -32,12 +32,22 @@ refund.short_description = '환불'
 
 class OrderAdmin(admin.ModelAdmin):
     list_filter = ('status', )
-    list_display = ('user', 'product', 'styled_status')
+    # list_display에 action 함수를 추가
+    list_display = ('user', 'product', 'styled_status', 'action')
     change_list_template = 'admin/order_change_list.html'
     
     actions = [
         refund
     ]
+    
+    # action 함수: 환불 상태가 아닐 때 환불 버튼을 만들고, 그렇지 않을 때 비활성 환불 버튼 만들기
+    def action(self, obj):
+        if obj.status != '환불':
+            return format_html(f'<input type="button" value="환불" onclick="order_refund_submit({obj.id})" class="btn btn-primary btn-sm">')
+        else:
+            return format_html(f'<input type="button" value="환불" class="btn btn-primary btn-sm disabled">')
+        
+    action.short_description = '관리'
     
     def styled_status(self, obj):
         # '<b>' + obj.status + '</b>'
@@ -52,6 +62,28 @@ class OrderAdmin(admin.ModelAdmin):
     
     def changelist_view(self, request, extra_context=None):
         extra_context = {'title': '주문 목록'}
+        
+        if request.method == 'POST':
+            obj_id = request.POST.get('obj_id')
+            if obj_id:
+                qs = Order.objects.filter(pk=obj_id)
+                # LogEntry에서 수정하고자 하는 모델 타입을 알려줌
+                ct = ContentType.objects.get_for_model(qs.model)
+
+                for obj in qs:
+                    obj.product.stock += obj.quantity
+                    obj.product.save()
+
+                    LogEntry.objects.log_action(
+                        user_id=request.user.id,
+                        content_type_id=ct.pk,
+                        object_id=obj.pk,
+                        object_repr='주문 환불',
+                        action_flag=CHANGE,
+                        change_message='주문 환불'
+                    )
+                qs.update(status='환불')
+                
         return super().changelist_view(request, extra_context)
     
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
