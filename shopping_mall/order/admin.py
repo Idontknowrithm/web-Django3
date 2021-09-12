@@ -35,6 +35,7 @@ class OrderAdmin(admin.ModelAdmin):
     # list_display에 action 함수를 추가
     list_display = ('user', 'product', 'styled_status', 'action')
     change_list_template = 'admin/order_change_list.html'
+    change_form_template = 'admin/order_change_form.html'
     
     actions = [
         refund
@@ -88,7 +89,9 @@ class OrderAdmin(admin.ModelAdmin):
     
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         order = Order.objects.get(pk=object_id)
-        extra_context = {'title': f'{order.user}님의 {order.product} 주문 수정하기'}
+        extra_context = {'title': f'{order.user}님의 {order.product} 주문 수정하기'} 
+        extra_context['show_save_and_add_another'] = False
+        extra_context['show_save_and_continue'] = False
         return super().changeform_view(request, object_id, form_url, extra_context)
     
     styled_status.short_description = '상태'
