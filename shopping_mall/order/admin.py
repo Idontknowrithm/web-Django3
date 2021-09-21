@@ -1,9 +1,12 @@
+import datetime
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F, Q
 from django.contrib import admin
+from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.db import transaction
+from django.urls import path
 from .models import Order
 
 # Register your models here.
@@ -93,6 +96,24 @@ class OrderAdmin(admin.ModelAdmin):
         extra_context['show_save_and_add_another'] = False
         extra_context['show_save_and_continue'] = False
         return super().changeform_view(request, object_id, form_url, extra_context)
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        date_urls = [
+            path('date_view/', self.date_view),
+        ]
+        return date_urls + urls
+    
+    def date_view(self, request):
+        week_date = datetime.datetime.now() - datetime.timedelta(days=7)
+        week_data = Order.objects.filter(register_date__gte=week_date)
+        data = Order.objects.filter(register_date__lt=week_date)
+        context = dict(
+            self.admin_site.each_context(request),
+            week_data=week_data,
+            data=data
+        )
+        return TemplateResponse(request, 'admin/order_date_view.html', context)
     
     styled_status.short_description = '상태'
 
